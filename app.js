@@ -238,16 +238,13 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
-const connectString = process.env.LOCAL_DATABASE;
+const connectString = process.env.Atlas_DATABASE;
 
 const express = require('express');
 const app = express();
 
 const tourRouter = require('./routes/tour.route');
 const userRouter = require('./routes/user.route');
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);

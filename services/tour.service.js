@@ -1,31 +1,49 @@
-const fs = require('fs');
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
+const { Tour } = require('../models/tour.model');
+const APIfeatures = require('../api/APIfeatures');
 
-exports.getAllTours = () => tours;
-
-exports.getTourById = (id) => tours.find(t => t.id === parseInt(id));
-
-exports.createTour = (data) => {
-  const newId = tours.length > 0 ? tours[tours.length - 1].id + 1 : 1;
-  const newTour = { id: newId, ...data };
-  tours.push(newTour);
-  fs.writeFileSync(`${__dirname}/../dev-data/data/tours-simple.json`, JSON.stringify(tours, null, 4));
-  return newTour;
+exports.getAllTours = async (query) => {
+  const features = new APIfeatures(Tour.find(), query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  return await features.query;
 };
 
-exports.updateTour = (id, data) => {
-  const tour = tours.find(t => t.id === parseInt(id));
-  if (!tour) return null;
-  const updatedTour = { ...tour, ...data };
-  tours[tours.indexOf(tour)] = updatedTour;
-  fs.writeFileSync(`${__dirname}/../dev-data/data/tours-simple.json`, JSON.stringify(tours, null, 4));
-  return updatedTour;
+exports.getTourById = async (id) => {
+  return await Tour.findById(id);
 };
 
-exports.deleteTour = (id) => {
-  const index = tours.findIndex(t => t.id === parseInt(id));
-  if (index === -1) return false;
-  tours.splice(index, 1);
-  fs.writeFileSync(`${__dirname}/../dev-data/data/tours-simple.json`, JSON.stringify(tours, null, 4));
-  return true;
+exports.createTour = async (data) => {
+  const tour = new Tour(data);
+  return await tour.save();
+};
+
+exports.updateTour = async (id, data) => {
+  return await Tour.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true
+  });
+};
+
+exports.deleteTour = async (id) => {
+  return await Tour.findByIdAndDelete(id);
+};
+
+exports.getToursStats = async () => {
+  return await Tour.aggregate([
+    { $match: { ratingsAverage: { $gt: 4.5 } } },
+    {
+      $group: {
+        _id: '$difficulty',
+        numTours: { $sum: 1 },
+        avgRating: { $avg: '$ratingsAverage' },
+        numRatings: { $sum: '$ratingsQuantity' },
+        minPrice: { $min: '$price' },
+        maxPrice: { $max: '$price' },
+        avgPrice: { $avg: '$price' }
+      }
+    },
+    { $sort: { avgPrice: 1 } }
+  ]);
 };

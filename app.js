@@ -243,6 +243,8 @@ const connectString = process.env.Atlas_DATABASE;
 const express = require('express');
 const app = express();
 
+app.use(express.json());
+
 const tourRouter = require('./routes/tour.route');
 const userRouter = require('./routes/user.route');
 

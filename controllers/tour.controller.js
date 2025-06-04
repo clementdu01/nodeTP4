@@ -1,6 +1,13 @@
 const tourService = require('../services/tour.service');
 
 exports.validateTour = (req, res, next) => {
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Le corps de la requête est vide ou invalide.'
+    });
+  }
+
   const { name, duration, description, difficulty, maxGroupSize } = req.body;
 
   if (!name || !duration || !description || !difficulty || !maxGroupSize) {

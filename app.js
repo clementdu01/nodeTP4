@@ -265,9 +265,15 @@ mongoose.connect(connectString)
   })
 
 async function manageUser() {
-  const UserModel = mongoose.model('User', new mongoose.Schema({ name: String }));
+  const UserModel = require('./models/user.model');
 
-  const userDoc = new UserModel({ name: 'Foo' });
+  const userDoc = new UserModel({
+    name: 'Foo',
+    email: 'foo@example.com',
+    password: 'adminpassword',
+    role: 'admin'
+  });
+
   await userDoc.save();
 
   const userFromDb = await UserModel.findOne({ name: 'Foo' });

@@ -1,30 +1,26 @@
-const fs = require('fs');
-const users = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/users.json`));
+const User = require('../models/user.model');
 
-exports.getAllUsers = () => users;
-
-exports.getUserById = (id) => users.find(u => u._id === id);
-
-exports.createUser = (data) => {
-  const newUser = { ...data };
-  users.push(newUser);
-  fs.writeFileSync(`${__dirname}/../dev-data/data/users.json`, JSON.stringify(users, null, 4));
-  return newUser;
+exports.getAllUsers = async () => {
+  return await User.find();
 };
 
-exports.updateUser = (id, data) => {
-  const user = users.find(u => u._id === id);
-  if (!user) return null;
-  const updatedUser = { ...user, ...data };
-  users[users.indexOf(user)] = updatedUser;
-  fs.writeFileSync(`${__dirname}/../dev-data/data/users.json`, JSON.stringify(users, null, 4));
-  return updatedUser;
+exports.getUserById = async (id) => {
+  return await User.findById(id);
 };
 
-exports.deleteUser = (id) => {
-  const index = users.findIndex(u => u._id === id);
-  if (index === -1) return false;
-  users.splice(index, 1);
-  fs.writeFileSync(`${__dirname}/../dev-data/data/users.json`, JSON.stringify(users, null, 4));
-  return true;
+exports.createUser = async (data) => {
+  const user = new User(data);
+  return await user.save();
+};
+
+exports.updateUser = async (id, data) => {
+  return await User.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true
+  });
+};
+
+exports.deleteUser = async (id) => {
+  const user = await User.findByIdAndDelete(id);
+  return !!user;
 };

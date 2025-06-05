@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const tourSchema = new mongoose.Schema({
     name: { type: String, required: [true, 'A tour must have a name'], unique: true, trim: true },
@@ -21,8 +21,8 @@ const tourSchema = new mongoose.Schema({
         default: Date.now()
     },
     startDates: [Date]
-})
+});
 
-const Tour = mongoose.model('Tour', tourSchema)
+const Tour = mongoose.model('Tour', tourSchema);
 
-export { Tour }
+module.exports = { Tour };
